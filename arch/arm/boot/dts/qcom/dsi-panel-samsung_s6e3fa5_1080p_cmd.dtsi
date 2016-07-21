@@ -229,6 +229,7 @@
 				39 01 00 00 00 00 03 F0 A5 A5];
 
 			qcom,ulps-enabled;
+			qcom,suspend-ulps-enabled;
 			qcom,panel-allow-phy-poweroff;
 	};
 };

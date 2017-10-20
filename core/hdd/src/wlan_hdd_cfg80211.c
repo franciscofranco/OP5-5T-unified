@@ -16156,7 +16156,11 @@ static int wlan_hdd_cfg80211_connect_start(hdd_adapter_t *pAdapter,
 		qdf_mem_copy((void *)(pRoamProfile->SSIDs.SSIDList->SSID.ssId),
 			     ssid, ssid_len);
 
-		pRoamProfile->do_not_roam = !pAdapter->fast_roaming_allowed;
+		pRoamProfile->supplicant_disabled_roaming =
+			!pAdapter->fast_roaming_allowed;
+		pRoamProfile->roaming_allowed_on_iface =
+			pAdapter->fast_roaming_allowed;
+
 		/* cleanup bssid hint */
 		qdf_mem_zero(pRoamProfile->bssid_hint.bytes,
 			QDF_MAC_ADDR_SIZE);
@@ -16165,7 +16169,7 @@ static int wlan_hdd_cfg80211_connect_start(hdd_adapter_t *pAdapter,
 
 		if (bssid) {
 			pRoamProfile->BSSIDs.numOfBSSIDs = 1;
-			pRoamProfile->do_not_roam = true;
+			pRoamProfile->supplicant_disabled_roaming = true;
 			qdf_mem_copy((void *)(pRoamProfile->BSSIDs.bssid),
 				     bssid, QDF_MAC_ADDR_SIZE);
 			/*

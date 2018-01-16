@@ -112,3 +112,7 @@ all.config
 
 # Kdevelop4
 *.kdev4
+build_custom.sh
+build_oos.sh
+out/
+version

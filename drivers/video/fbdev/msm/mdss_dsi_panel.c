@@ -1046,25 +1046,10 @@ backlight level 0-->55 ==> 0-->55
 backlight level 55-->230 ==> 55-->200
 backlight level 230-->255 ==> 200-->255
 *************************************/
-#ifndef CONFIG_CUSTOM_ROM
 static u32 backlight_level_remap(struct mdss_dsi_ctrl_pdata *ctrl, u32 level)
 {
-    u32 remap_level = 0;
-
-    if (ctrl->bklt_max == 255){
-        if (level < 55){
-            remap_level = level;
-        } else if ((level >= 55) && (level <= 230)){
-            remap_level = (level*29+330)/35;
-        }else{
-            remap_level = level*11/5-306;
-        }
-    } else{
-        remap_level = level;
-    }
-	return remap_level;
+	return level;
 }
-#endif
 
 static void mdss_dsi_panel_bl_ctrl(struct mdss_panel_data *pdata,
 							u32 bl_level)

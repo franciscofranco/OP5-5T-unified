@@ -116,3 +116,4 @@ build_custom.sh
 build_oos.sh
 out/
 version
+upload.sh

@@ -118,3 +118,4 @@ out/
 version
 upload.sh
 repackage_ramdisk.sh
+upload_custom.sh

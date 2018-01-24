@@ -5268,6 +5268,7 @@ static struct elevator_type iosched_bfq = {
 #ifdef CONFIG_BFQ_GROUP_IOSCHED
 		.elevator_bio_merged_fn =	bfq_bio_merged,
 #endif
+		.elevator_allow_bio_merge_fn =	bfq_allow_merge,
 		.elevator_dispatch_fn =		bfq_dispatch_requests,
 		.elevator_add_req_fn =		bfq_insert_request,
 		.elevator_activate_req_fn =	bfq_activate_request,

@@ -5396,8 +5396,8 @@ static int32_t hdd_process_genie(hdd_adapter_t *pAdapter,
 	uint32_t ret;
 	uint8_t *pRsnIe;
 	uint16_t RSNIeLen;
-	tDot11fIERSN dot11RSNIE;
-	tDot11fIEWPA dot11WPAIE;
+	tDot11fIERSN dot11RSNIE = {0};
+	tDot11fIEWPA dot11WPAIE = {0};
 	tHalHandle halHandle = WLAN_HDD_GET_HAL_CTX(pAdapter);
 
 	/*
@@ -5420,10 +5420,9 @@ static int32_t hdd_process_genie(hdd_adapter_t *pAdapter,
 		pRsnIe = gen_ie + 2;
 		RSNIeLen = gen_ie_len - 2;
 		/* Unpack the RSN IE */
-		ret = dot11f_unpack_ie_rsn((tpAniSirGlobal) halHandle,
-					   pRsnIe, RSNIeLen, &dot11RSNIE,
-					   false);
-		if (DOT11F_FAILED(ret)) {
+		ret = sme_unpack_rsn_ie(halHandle, pRsnIe, RSNIeLen,
+					&dot11RSNIE, false);
+		if (!DOT11F_SUCCEEDED(ret)) {
 			hdd_err("unpack failed, ret: 0x%x", ret);
 			return -EINVAL;
 		}
@@ -5608,7 +5607,19 @@ int hdd_set_genie_to_csr(hdd_adapter_t *pAdapter, eCsrAuthType *RSNAuthType)
 				   pWextState->roamProfile.pRSNReqIE,
 				   pWextState->roamProfile.nRSNReqIELength);
 		pWextState->roamProfile.force_rsne_override = true;
-		 /* If parsing failed set the def value for the roam profile */
+
+		hdd_debug("MFPEnabled %d", pWextState->roamProfile.MFPEnabled);
+		/*
+		 * Reset MFPEnabled if testmode RSNE passed doesnt have MFPR
+		 * or MFPC bit set
+		 */
+		if (pWextState->roamProfile.MFPEnabled &&
+		    !(pWextState->roamProfile.MFPRequired ||
+		      pWextState->roamProfile.MFPCapable)) {
+			hdd_debug("Reset MFPEnabled");
+			pWextState->roamProfile.MFPEnabled = 0;
+		}
+		/* If parsing failed set the def value for the roam profile */
 		if (status)
 			hdd_set_def_rsne_override(&pWextState->roamProfile,
 						  RSNAuthType);

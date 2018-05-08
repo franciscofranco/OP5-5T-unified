@@ -9145,6 +9145,18 @@ QDF_STATUS sme_stop_roaming(tHalHandle hal, uint8_t session_id, uint8_t reason)
 				session_id);
 		return QDF_STATUS_SUCCESS;
 	}
+
+	/*
+	 * set the driver_disabled_roaming flag to true even if roaming
+	 * is not enabled on this session so that roam start requests for
+	 * this session can be blocked until driver enables roaming
+	 */
+	if (reason == eCsrDriverDisabled && session->pCurRoamProfile) {
+		session->pCurRoamProfile->driver_disabled_roaming = true;
+		sme_debug("driver_disabled_roaming set for session %d",
+			  session_id);
+	}
+
 	roam_info = &mac_ctx->roam.neighborRoamInfo[session_id];
 	req = qdf_mem_malloc(sizeof(*req));
 	if (!req) {
@@ -9153,10 +9165,12 @@ QDF_STATUS sme_stop_roaming(tHalHandle hal, uint8_t session_id, uint8_t reason)
 	}
 
 	req->Command = ROAM_SCAN_OFFLOAD_STOP;
-	if (reason == eCsrForcedDisassoc)
+
+	if ((reason == eCsrForcedDisassoc) || (reason == eCsrDriverDisabled))
 		req->reason = REASON_ROAM_STOP_ALL;
 	else
 		req->reason = REASON_SME_ISSUED;
+
 	req->sessionId = session_id;
 	if (csr_neighbor_middle_of_roaming(mac_ctx, session_id))
 		req->middle_of_roaming = 1;
@@ -15353,6 +15367,20 @@ bool sme_neighbor_middle_of_roaming(tHalHandle hHal, uint8_t sessionId)
 		sme_err("Invalid Session: %d", sessionId);
 
 	return val;
+}
+
+bool sme_is_any_session_in_middle_of_roaming(tHalHandle hal)
+{
+	tpAniSirGlobal mac_ctx = PMAC_STRUCT(hal);
+	uint8_t session_id;
+
+	for (session_id = 0; session_id < CSR_ROAM_SESSION_MAX; session_id++) {
+		if (CSR_IS_SESSION_VALID(mac_ctx, session_id) &&
+		    csr_neighbor_middle_of_roaming(mac_ctx, session_id))
+			return true;
+	}
+
+	return false;
 }
 
 /**

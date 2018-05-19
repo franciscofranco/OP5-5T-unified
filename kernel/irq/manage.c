@@ -21,6 +21,13 @@
 
 #include "internals.h"
 
+static const char *const perf_irq_names[] = {
+	"MDSS",
+	"kgsl-3d0",
+	"soc:fp_fpc1020"
+};
+static unsigned int perf_irq_nums[ARRAY_SIZE(perf_irq_names)] __read_mostly;
+
 #ifdef CONFIG_IRQ_FORCED_THREADING
 __read_mostly bool force_irqthreads;
 
@@ -1151,21 +1158,58 @@ setup_irq_thread(struct irqaction *new, unsigned int irq, bool secondary)
 	return 0;
 }
 
-static bool is_perf_crit_irq(const char *irq_name)
+static bool is_perf_crit_irq(struct irqaction *action)
 {
-	static const char *const perf_crit_irqs[] = {
-		"MDSS",
-		"kgsl-3d0",
-		"soc:fp_fpc1020"
-	};
+	static const size_t len = ARRAY_SIZE(perf_irq_names);
 	int i;
 
-	for (i = 0; i < ARRAY_SIZE(perf_crit_irqs); i++) {
-		if (!strcmp(perf_crit_irqs[i], irq_name))
-			return true;
+	for (i = 0; i < len; i++) {
+		if (!strcmp(perf_irq_names[i], action->name))
+			break;
 	}
 
-	return false;
+	if (i == len)
+		return false;
+
+	for (i = 0; i < len; i++) {
+		if (!perf_irq_nums[i]) {
+			perf_irq_nums[i] = action->irq;
+			break;
+		}
+	}
+
+	return true;
+}
+
+static void affine_one_irq(struct irqaction *action, struct irq_data *data)
+{
+	static const unsigned long big_cluster_cpus = 0xf0;
+	const struct cpumask *mask = to_cpumask(&big_cluster_cpus);
+
+	irq_set_affinity_locked(data, mask, true);
+	if (action->thread)
+		kthread_bind_mask(action->thread, mask);
+}
+
+void reaffine_perf_irqs(void)
+{
+	static const size_t len = ARRAY_SIZE(perf_irq_nums);
+	unsigned long flags;
+	int i;
+
+	for (i = 0; i < len; i++) {
+		unsigned int irq = perf_irq_nums[i];
+		struct irq_desc *desc;
+
+		if (!irq)
+			break;
+
+		desc = irq_to_desc(irq);
+
+		raw_spin_lock_irqsave(&desc->lock, flags);
+		affine_one_irq(desc->action, &desc->irq_data);
+		raw_spin_unlock_irqrestore(&desc->lock, flags);
+	}
 }
 
 /*
@@ -1390,16 +1434,10 @@ __setup_irq(unsigned int irq, struct irq_desc *desc, struct irqaction *new)
 		}
 
 		/* Set default affinity mask once everything is setup */
-		if (is_perf_crit_irq(new->name)) {
-			static const unsigned long big_cluster_cpus = 0xf0;
-			const struct cpumask *m = to_cpumask(&big_cluster_cpus);
-
-			irq_set_affinity_locked(&desc->irq_data, m, true);
-			if (new->thread)
-				kthread_bind_mask(new->thread, m);
-		} else {
+		if (is_perf_crit_irq(new))
+			affine_one_irq(new, &desc->irq_data);
+		else
 			setup_affinity(desc, mask);
-		}
 
 	} else if (new->flags & IRQF_TRIGGER_MASK) {
 		unsigned int nmsk = new->flags & IRQF_TRIGGER_MASK;

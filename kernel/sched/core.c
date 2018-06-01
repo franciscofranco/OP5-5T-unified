@@ -1257,13 +1257,27 @@ static bool is_perf_crit_kthread(const char *name)
 static void get_adjusted_cpumask(const struct task_struct *p,
 	struct cpumask *new_mask, const struct cpumask *old_mask)
 {
+	static const unsigned long little_cluster_cpus = 0xf;
 	static const unsigned long big_cluster_cpus = 0xf0;
 
+	/* Don't modify the task's cpumask if it isn't a kthread */
+	if (!(p->flags & PF_KTHREAD))
+		goto keep_orig_mask;
+
 	/* Force all performance-critical kthreads onto the big cluster */
-	if (p->flags & PF_KTHREAD && is_perf_crit_kthread(p->comm))
+	if (is_perf_crit_kthread(p->comm)) {
 		cpumask_copy(new_mask, to_cpumask(&big_cluster_cpus));
-	else
-		cpumask_copy(new_mask, old_mask);
+		return;
+	}
+
+	/* Force all trivial, unbound kthreads onto the little cluster */
+	if (cpumask_equal(old_mask, cpu_all_mask)) {
+		cpumask_copy(new_mask, to_cpumask(&little_cluster_cpus));
+		return;
+	}
+
+keep_orig_mask:
+	cpumask_copy(new_mask, old_mask);
 }
 
 void do_set_cpus_allowed(struct task_struct *p, const struct cpumask *new_mask)

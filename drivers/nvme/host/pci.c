@@ -1589,11 +1589,11 @@ static int nvme_create_queue(struct nvme_queue *nvmeq, int qid)
 	if (result < 0)
 		goto release_cq;
 
+	nvme_init_queue(nvmeq, qid);
 	result = queue_request_irq(dev, nvmeq, nvmeq->irqname);
 	if (result < 0)
 		goto release_sq;
 
-	nvme_init_queue(nvmeq, qid);
 	return result;
 
  release_sq:
@@ -1797,6 +1797,7 @@ static int nvme_configure_admin_queue(struct nvme_dev *dev)
 		goto free_nvmeq;
 
 	nvmeq->cq_vector = 0;
+	nvme_init_queue(nvmeq, 0);
 	result = queue_request_irq(dev, nvmeq, nvmeq->irqname);
 	if (result) {
 		nvmeq->cq_vector = -1;
@@ -3165,7 +3166,6 @@ static void nvme_probe_work(struct work_struct *work)
 		goto disable;
 	}
 
-	nvme_init_queue(dev->queues[0], 0);
 	result = nvme_alloc_admin_tags(dev);
 	if (result)
 		goto disable;
@@ -3327,11 +3327,11 @@ static int nvme_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	dev = kzalloc_node(sizeof(*dev), GFP_KERNEL, node);
 	if (!dev)
 		return -ENOMEM;
-	dev->entry = kzalloc_node(num_possible_cpus() * sizeof(*dev->entry),
+	dev->entry = kcalloc_node(num_possible_cpus(), sizeof(*dev->entry),
 							GFP_KERNEL, node);
 	if (!dev->entry)
 		goto free;
-	dev->queues = kzalloc_node((num_possible_cpus() + 1) * sizeof(void *),
+	dev->queues = kcalloc_node(num_possible_cpus() + 1, sizeof(void *),
 							GFP_KERNEL, node);
 	if (!dev->queues)
 		goto free;

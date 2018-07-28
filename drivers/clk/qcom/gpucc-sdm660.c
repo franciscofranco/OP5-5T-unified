@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2016-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -181,6 +181,7 @@ static const struct freq_tbl ftbl_gfx3d_clk_src[] = {
 	F_GFX(370000000, 0,  2, 0, 0,  740000000),
 	F_GFX(430000000, 0,  2, 0, 0,  860000000),
 	F_GFX(465000000, 0,  2, 0, 0,  930000000),
+	F_GFX(585000000, 0,  2, 0, 0, 1170000000),
 	F_GFX(588000000, 0,  2, 0, 0, 1176000000),
 	F_GFX(647000000, 0,  2, 0, 0, 1294000000),
 	F_GFX(700000000, 0,  2, 0, 0, 1400000000),
@@ -366,22 +367,26 @@ static int of_get_fmax_vdd_class(struct platform_device *pdev,
 	}
 
 	prop_len /= num;
-	vdd->level_votes = devm_kzalloc(&pdev->dev, prop_len * sizeof(int),
+	vdd->level_votes = devm_kcalloc(&pdev->dev, prop_len, sizeof(int),
 					GFP_KERNEL);
 	if (!vdd->level_votes)
 		return -ENOMEM;
 
 	vdd->vdd_uv = devm_kzalloc(&pdev->dev,
-			prop_len * sizeof(int) * (num - 1), GFP_KERNEL);
+			array3_size(prop_len, sizeof(int), (num - 1)),
+			GFP_KERNEL);
 	if (!vdd->vdd_uv)
 		return -ENOMEM;
 
-	gpu_clks_init[index].rate_max = devm_kzalloc(&pdev->dev, prop_len *
-					sizeof(unsigned long), GFP_KERNEL);
+	gpu_clks_init[index].rate_max = devm_kcalloc(&pdev->dev,
+						     prop_len,
+						     sizeof(unsigned long),
+						     GFP_KERNEL);
 	if (!gpu_clks_init[index].rate_max)
 		return -ENOMEM;
 
-	array = devm_kzalloc(&pdev->dev, prop_len * sizeof(u32) * num,
+	array = devm_kzalloc(&pdev->dev,
+				array3_size(prop_len, num, sizeof(u32)),
 				GFP_KERNEL);
 	if (!array)
 		return -ENOMEM;

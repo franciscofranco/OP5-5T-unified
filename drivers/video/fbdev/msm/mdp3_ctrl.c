@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2017, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2013-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -1563,12 +1563,16 @@ static int mdp3_get_metadata(struct msm_fb_data_type *mfd,
 		}
 		break;
 	case metadata_op_get_ion_fd:
-		if (mfd->fb_ion_handle) {
+		if (mfd->fb_ion_handle && mfd->fb_ion_client) {
+			get_dma_buf(mfd->fbmem_buf);
 			metadata->data.fbmem_ionfd =
-					dma_buf_fd(mfd->fbmem_buf, 0);
-			if (metadata->data.fbmem_ionfd < 0)
+				ion_share_dma_buf_fd(mfd->fb_ion_client,
+					mfd->fb_ion_handle);
+			if (metadata->data.fbmem_ionfd < 0) {
+				dma_buf_put(mfd->fbmem_buf);
 				pr_err("fd allocation failed. fd = %d\n",
-						metadata->data.fbmem_ionfd);
+					metadata->data.fbmem_ionfd);
+			}
 		}
 		break;
 	default:
@@ -2020,7 +2024,7 @@ static int mdp3_alloc_lut_buffer(struct platform_device *pdev, void **cmap)
 	}
 	memset(map, 0, sizeof(struct fb_cmap));
 
-	map->red = devm_kzalloc(&pdev->dev, MDP_LUT_SIZE * sizeof(u16),
+	map->red = devm_kcalloc(&pdev->dev, MDP_LUT_SIZE, sizeof(u16),
 				GFP_KERNEL);
 	if (map->red == NULL) {
 		pr_err("Failed cmap allocation for red\n");
@@ -2028,16 +2032,16 @@ static int mdp3_alloc_lut_buffer(struct platform_device *pdev, void **cmap)
 	}
 	memset(map->red, 0, sizeof(u16) * MDP_LUT_SIZE);
 
-	map->green = devm_kzalloc(&pdev->dev, MDP_LUT_SIZE * sizeof(u16),
-				GFP_KERNEL);
+	map->green = devm_kcalloc(&pdev->dev, MDP_LUT_SIZE, sizeof(u16),
+				  GFP_KERNEL);
 	if (map->green == NULL) {
 		pr_err("Failed cmap allocation for green\n");
 		goto exit_green;
 	}
 	memset(map->green, 0, sizeof(u16) * MDP_LUT_SIZE);
 
-	map->blue = devm_kzalloc(&pdev->dev, MDP_LUT_SIZE * sizeof(u16),
-				GFP_KERNEL);
+	map->blue = devm_kcalloc(&pdev->dev, MDP_LUT_SIZE, sizeof(u16),
+				 GFP_KERNEL);
 	if (map->blue == NULL) {
 		pr_err("Failed cmap allocation for blue\n");
 		goto exit_blue;

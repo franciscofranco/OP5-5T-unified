@@ -150,4 +150,17 @@ void flush_kthread_worker(struct kthread_worker *worker);
 
 bool kthread_cancel_work_sync(struct kthread_work *work);
 
+/*
+ * Returns true when the work could not be queued at the moment.
+ * It happens when it is already pending in a worker list
+ * or when it is being cancelled.
+ */
+static inline bool queuing_blocked(struct kthread_worker *worker,
+                                   struct kthread_work *work)
+{
+        lockdep_assert_held(&worker->lock);
+
+        return !list_empty(&work->node) || work->canceling;
+}
+
 #endif /* _LINUX_KTHREAD_H */

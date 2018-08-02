@@ -2347,6 +2347,12 @@ void lim_handle_csa_offload_msg(tpAniSirGlobal mac_ctx, tpSirMsgQ msg)
 		goto err;
 	}
 
+	/* Send RSO Stop to FW before triggering the vdev restart for CSA */
+	if (mac_ctx->lim.stop_roaming_callback)
+		mac_ctx->lim.stop_roaming_callback(mac_ctx,
+						   session_entry->smeSessionId,
+						   eCsrDriverDisabled);
+
 	lim_prepare_for11h_channel_switch(mac_ctx, session_entry);
 	csa_offload_ind = qdf_mem_malloc(sizeof(tSmeCsaOffloadInd));
 	if (NULL == csa_offload_ind) {

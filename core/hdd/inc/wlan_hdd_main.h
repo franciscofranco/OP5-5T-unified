@@ -2124,6 +2124,7 @@ struct hdd_context_s {
 #endif
 	struct sta_ap_intf_check_work_ctx *sta_ap_intf_check_work_info;
 	uint8_t active_ac;
+	bool force_rsne_override;
 	qdf_wake_lock_t monitor_mode_wakelock;
 	struct qdf_mac_addr hw_macaddr;
 #ifdef WLAN_POWER_DEBUGFS

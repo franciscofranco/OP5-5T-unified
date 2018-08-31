@@ -5491,6 +5491,36 @@ static int32_t hdd_process_genie(hdd_adapter_t *pAdapter,
 }
 
 /**
+ * hdd_set_def_rsne_override() - set default encryption type and auth type
+ * in profile.
+ * @roam_profile: pointer to adapter
+ * @auth_type: pointer to auth type
+ *
+ * Set default value of encryption type and auth type in profile to
+ * search the AP using filter, as in force_rsne_override the RSNIE can be
+ * corrupt and we might not get the proper encryption type and auth type
+ * while parsing the RSNIE.
+ *
+ * Return: void
+ */
+static void hdd_set_def_rsne_override(tCsrRoamProfile *roam_profile,
+				      eCsrAuthType *auth_type)
+{
+	hdd_debug("Set def values in roam profile");
+	roam_profile->MFPCapable = roam_profile->MFPEnabled;
+	roam_profile->EncryptionType.numEntries = 2;
+	roam_profile->mcEncryptionType.numEntries = 2;
+	/* Use the cipher type in the RSN IE */
+	roam_profile->EncryptionType.encryptionType[0] = eCSR_ENCRYPT_TYPE_AES;
+	roam_profile->EncryptionType.encryptionType[1] = eCSR_ENCRYPT_TYPE_TKIP;
+	roam_profile->mcEncryptionType.encryptionType[0] =
+		eCSR_ENCRYPT_TYPE_AES;
+	roam_profile->mcEncryptionType.encryptionType[1] =
+		eCSR_ENCRYPT_TYPE_TKIP;
+	*auth_type = eCSR_AUTH_TYPE_RSN_PSK;
+}
+
+/**
  * hdd_set_genie_to_csr() - set genie to csr
  * @pAdapter: pointer to adapter
  * @RSNAuthType: pointer to auth type
@@ -5503,6 +5533,7 @@ int hdd_set_genie_to_csr(hdd_adapter_t *pAdapter, eCsrAuthType *RSNAuthType)
 	uint32_t status = 0;
 	eCsrEncryptionType RSNEncryptType;
 	eCsrEncryptionType mcRSNEncryptType;
+	hdd_context_t *hdd_ctx;
 #ifdef WLAN_FEATURE_11W
 	uint8_t RSNMfpRequired = 0;
 	uint8_t RSNMfpCapable = 0;
@@ -5519,8 +5550,10 @@ int hdd_set_genie_to_csr(hdd_adapter_t *pAdapter, eCsrAuthType *RSNAuthType)
 	} else {
 		return 0;
 	}
-	/* The actual processing may eventually be more extensive than this. */
-	/* Right now, just consume any PMKIDs that are  sent in by the app. */
+
+	/* The actual processing may eventually be more extensive than this.
+	 * Right now, just consume any PMKIDs that are  sent in by the app.
+	 */
 	status = hdd_process_genie(pAdapter, bssid,
 				   &RSNEncryptType,
 				   &mcRSNEncryptType, RSNAuthType,
@@ -5567,7 +5600,21 @@ int hdd_set_genie_to_csr(hdd_adapter_t *pAdapter, eCsrAuthType *RSNAuthType)
 		hdd_debug("CSR AuthType = %d, EncryptionType = %d mcEncryptionType = %d",
 			 *RSNAuthType, RSNEncryptType, mcRSNEncryptType);
 	}
-	return 0;
+	hdd_ctx = WLAN_HDD_GET_CTX(pAdapter);
+	if (hdd_ctx->force_rsne_override &&
+	    (pWextState->WPARSNIE[0] == DOT11F_EID_RSN)) {
+		hdd_warn("Test mode enabled set def Auth and enc type. RSN IE passed in connect req:");
+		qdf_trace_hex_dump(QDF_MODULE_ID_HDD, QDF_TRACE_LEVEL_WARN,
+				   pWextState->roamProfile.pRSNReqIE,
+				   pWextState->roamProfile.nRSNReqIELength);
+		pWextState->roamProfile.force_rsne_override = true;
+		 /* If parsing failed set the def value for the roam profile */
+		if (status)
+			hdd_set_def_rsne_override(&pWextState->roamProfile,
+						  RSNAuthType);
+		return 0;
+	}
+	return status;
 }
 
 #ifdef WLAN_FEATURE_FILS_SK

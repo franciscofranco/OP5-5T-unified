@@ -413,8 +413,6 @@ ipt_do_table(struct sk_buff *skb,
 					break;
 				}
 				jumpstack[stackidx++] = e;
-				pr_debug("Pushed %p into pos %u\n",
-					 e, stackidx - 1);
 			}
 
 			e = get_entry(table_base, v);
@@ -2072,6 +2070,7 @@ static struct xt_match ipt_builtin_mt[] __read_mostly = {
 		.checkentry = icmp_checkentry,
 		.proto      = IPPROTO_ICMP,
 		.family     = NFPROTO_IPV4,
+		.me	    = THIS_MODULE,
 	},
 };
 

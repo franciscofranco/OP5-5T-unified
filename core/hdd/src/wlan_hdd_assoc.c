@@ -5427,14 +5427,17 @@ static int32_t hdd_process_genie(hdd_adapter_t *pAdapter,
 			hdd_err("unpack failed, ret: 0x%x", ret);
 			return -EINVAL;
 		}
+
+		hdd_debug("gp_cipher_suite_present: %d",
+			  dot11RSNIE.gp_cipher_suite_present);
 		/* Copy out the encryption and authentication types */
 		hdd_debug("pairwise cipher suite count: %d",
 			 dot11RSNIE.pwise_cipher_suite_count);
 		hdd_debug("authentication suite count: %d",
-			 dot11RSNIE.akm_suite_count);
+			 dot11RSNIE.akm_suite_cnt);
 		*pAuthType =
 			hdd_translate_rsn_to_csr_auth_type(
-					dot11RSNIE.akm_suites[0]);
+					dot11RSNIE.akm_suite[0]);
 		/* dot11RSNIE.pwise_cipher_suite_count */
 		*pEncryptType =
 			hdd_translate_rsn_to_csr_encryption_type(

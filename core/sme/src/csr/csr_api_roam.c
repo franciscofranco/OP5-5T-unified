@@ -6319,7 +6319,7 @@ static QDF_STATUS csr_roam_save_params(tpAniSirGlobal mac_ctx,
 			 */
 			nIeLen = 8 + 2 + 2
 				+ (rsnie->pwise_cipher_suite_count * 4)
-				+ (rsnie->akm_suite_count * 4);
+				+ (rsnie->akm_suite_cnt * 4);
 			if (rsnie->pmkid_count)
 				/* pmkid */
 				nIeLen += 2 + rsnie->pmkid_count * 4;
@@ -6348,17 +6348,17 @@ static QDF_STATUS csr_roam_save_params(tpAniSirGlobal mac_ctx,
 					rsnie->pwise_cipher_suite_count * 4);
 				pIeBuf += rsnie->pwise_cipher_suite_count * 4;
 			}
-			qdf_mem_copy(pIeBuf, &rsnie->akm_suite_count, 2);
+			qdf_mem_copy(pIeBuf, &rsnie->akm_suite_cnt, 2);
 			pIeBuf += 2;
-			if (rsnie->akm_suite_count) {
+			if (rsnie->akm_suite_cnt) {
 				/* copy akm_suites */
-				qdf_mem_copy(pIeBuf, rsnie->akm_suites,
-					rsnie->akm_suite_count * 4);
-				pIeBuf += rsnie->akm_suite_count * 4;
+				qdf_mem_copy(pIeBuf, rsnie->akm_suite,
+					rsnie->akm_suite_cnt * 4);
+				pIeBuf += rsnie->akm_suite_cnt * 4;
 			}
 			/* copy the rest */
-			qdf_mem_copy(pIeBuf, rsnie->akm_suites +
-				rsnie->akm_suite_count * 4,
+			qdf_mem_copy(pIeBuf, rsnie->akm_suite +
+				rsnie->akm_suite_cnt * 4,
 				2 + rsnie->pmkid_count * 4);
 			session_ptr->nWpaRsnRspIeLength = nIeLen + 2;
 		}

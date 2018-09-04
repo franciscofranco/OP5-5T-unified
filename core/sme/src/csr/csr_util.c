@@ -3324,7 +3324,7 @@ uint8_t csr_construct_rsn_ie(tHalHandle hHal, uint32_t sessionId,
 	tDot11fBeaconIEs *pIesLocal = pIes;
 	eCsrAuthType negAuthType = eCSR_AUTH_TYPE_UNKNOWN;
 	tCsrRoamSession *session = CSR_GET_SESSION(pMac, sessionId);
-	tDot11fIERSN rsn_ie;
+	tDot11fIERSN rsn_ie = {0};
 
 	if (!CSR_IS_SESSION_VALID(pMac, sessionId) || !session)
 		return 0;
@@ -5109,6 +5109,74 @@ static bool csr_is_fils_realm_match(tSirBssDescription *bss_descr,
 	return true;
 }
 #endif
+
+/**
+ * csr_match_security() - wrapper to check if the security is matching
+ * @mac_ctx: mac context
+ * @filter: scan filter
+ * @bss_desc: BSS Descriptor
+ * @ies_ptr:  Pointer to the IE fields
+ * @neg_auth_type: Negotiated Auth type with the AP
+ * @neg_uc_cipher: Negotiated unicast cipher suite
+ * @neg_mc_cipher: Negotiated multicast cipher
+ *
+ * Return: true if matched else false.
+ */
+#ifdef WLAN_FEATURE_11W
+static inline bool csr_match_security(tpAniSirGlobal mac_ctx,
+	tCsrScanResultFilter *filter, tSirBssDescription *bss_desc,
+	tDot11fBeaconIEs *ies_ptr, eCsrAuthType *neg_auth,
+	eCsrEncryptionType *neg_uc,
+	eCsrEncryptionType *neg_mc)
+{
+
+	if (!filter)
+		return false;
+
+	if (filter->bWPSAssociation || filter->bOSENAssociation)
+		return true;
+
+	if (filter->ignore_pmf_cap)
+		return csr_is_security_match(mac_ctx, &filter->authType,
+					     &filter->EncryptionType,
+					     &filter->mcEncryptionType,
+					     NULL, NULL, NULL,
+					     bss_desc, ies_ptr, neg_auth,
+					     neg_uc, neg_mc);
+	else
+		return csr_is_security_match(mac_ctx, &filter->authType,
+					     &filter->EncryptionType,
+					     &filter->mcEncryptionType,
+					     &filter->MFPEnabled,
+					     &filter->MFPRequired,
+					     &filter->MFPCapable,
+					     bss_desc, ies_ptr, neg_auth,
+					     neg_uc, neg_mc);
+
+}
+#else
+static inline bool csr_match_security(tpAniSirGlobal mac_ctx,
+	tCsrScanResultFilter *filter, tSirBssDescription *bss_desc,
+	tDot11fBeaconIEs *ies_ptr, eCsrAuthType *neg_auth,
+	eCsrEncryptionType *neg_uc,
+	eCsrEncryptionType *neg_mc)
+
+{
+	if (!filter)
+		return false;
+
+	if (filter->bWPSAssociation || filter->bOSENAssociation)
+		return true;
+
+	return csr_is_security_match(mac_ctx, &filter->authType,
+				&filter->EncryptionType,
+				&filter->mcEncryptionType,
+				NULL, NULL, NULL,
+				bss_desc, ies_ptr, neg_auth,
+				neg_uc, neg_mc);
+}
+#endif
+
 /**
  * csr_match_bss() - to compare the bss
  * @hal: pointer to hal context
@@ -5223,25 +5291,8 @@ bool csr_match_bss(tHalHandle hal, tSirBssDescription *bss_descr,
 			NULL, NULL, ie_ptr))
 		goto end;
 
-#ifdef WLAN_FEATURE_11W
-	if ((!filter->bWPSAssociation) && (!filter->bOSENAssociation) &&
-			!csr_is_security_match(mac_ctx, &filter->authType,
-				&filter->EncryptionType,
-				&filter->mcEncryptionType,
-				&filter->MFPEnabled,
-				&filter->MFPRequired,
-				&filter->MFPCapable,
-				bss_descr, ie_ptr, neg_auth,
-				neg_uc, neg_mc))
-#else
-	if ((!filter->bWPSAssociation) && (!filter->bOSENAssociation) &&
-			!csr_is_security_match(mac_ctx, &filter->authType,
-				&filter->EncryptionType,
-				&filter->mcEncryptionType,
-				NULL, NULL, NULL,
-				bss_descr, ie_ptr, neg_auth,
-				neg_uc, neg_mc))
-#endif
+	if (!csr_match_security(mac_ctx, filter, bss_descr, ie_ptr, neg_auth,
+			       neg_uc, neg_mc))
 		goto end;
 	if (!csr_is_capabilities_match(mac_ctx, filter->BSSType, bss_descr))
 		goto end;

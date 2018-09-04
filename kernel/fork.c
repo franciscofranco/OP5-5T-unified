@@ -77,6 +77,7 @@
 #include <linux/aio.h>
 #include <linux/compiler.h>
 #include <linux/sysctl.h>
+#include <linux/cpu_boost.h>
 
 #include <asm/pgtable.h>
 #include <asm/pgalloc.h>
@@ -1771,6 +1772,9 @@ long _do_fork(unsigned long clone_flags,
 	struct task_struct *p;
 	int trace = 0;
 	long nr;
+
+	if (is_zygote_pid(current->pid))
+		do_input_boost_max();
 
 	/*
 	 * Determine whether and which event to report to ptracer.  When

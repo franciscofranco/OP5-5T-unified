@@ -13329,6 +13329,30 @@ enum hw_filter_mode {
 #define CFG_ENABLE_UNIT_TEST_FRAMEWORK_MAX     (1)
 #define CFG_ENABLE_UINT_TEST_FRAMEWORK_DEFAULT (0)
 
+/*
+ * <ini>
+ * force_rsne_override - force rsnie override from user
+ * @Min: 0
+ * @Max: 1
+ * @Default: 0
+ *
+ * This ini is used to enable/disable test mode to force rsne override used in
+ * security enhancement test cases to pass the RSNIE sent by user in
+ * assoc request.
+ *
+ * Related: None
+ *
+ * Supported Feature: STA
+ *
+ * Usage: internal
+ *
+ * </ini>
+ */
+#define CFG_FORCE_RSNE_OVERRIDE_NAME    "force_rsne_override"
+#define CFG_FORCE_RSNE_OVERRIDE_MIN     (0)
+#define CFG_FORCE_RSNE_OVERRIDE_MAX     (1)
+#define CFG_FORCE_RSNE_OVERRIDE_DEFAULT (0)
+
 /*---------------------------------------------------------------------------
    Type declarations
    -------------------------------------------------------------------------*/
@@ -14193,6 +14217,7 @@ struct hdd_config {
 	uint32_t neighbor_report_offload_cache_timeout;
 	uint32_t neighbor_report_offload_max_req_cap;
 	uint8_t enable_tx_sch_delay;
+	bool force_rsne_override;
 	bool roam_force_rssi_trigger;
 	bool is_unit_test_framework_enabled;
 };

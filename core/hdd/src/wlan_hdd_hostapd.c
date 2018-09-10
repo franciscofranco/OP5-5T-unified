@@ -8059,6 +8059,11 @@ int wlan_hdd_cfg80211_start_bss(hdd_adapter_t *pHostapdAdapter,
 			hdd_err("Can't start BSS: update channel list failed");
 			return -EINVAL;
 		}
+
+		/* check if STA is on indoor channel*/
+		if (cds_is_force_scc())
+			hdd_check_and_disconnect_sta_on_invalid_channel(
+								       pHddCtx);
 	}
 
 	if (pHostapdAdapter->device_mode == QDF_SAP_MODE) {

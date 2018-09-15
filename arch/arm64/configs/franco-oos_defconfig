@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/arm64 4.4.153 Kernel Configuration
+# Linux/arm64 4.4.155 Kernel Configuration
 #
 # CONFIG_CUSTOM_ROM is not set
 CONFIG_ARM64=y
@@ -933,7 +933,9 @@ CONFIG_IP6_NF_TARGET_REJECT=y
 CONFIG_IP6_NF_MANGLE=y
 CONFIG_IP6_NF_RAW=y
 # CONFIG_IP6_NF_SECURITY is not set
-# CONFIG_IP6_NF_NAT is not set
+CONFIG_IP6_NF_NAT=y
+# CONFIG_IP6_NF_TARGET_MASQUERADE is not set
+# CONFIG_IP6_NF_TARGET_NPT is not set
 CONFIG_BRIDGE_NF_EBTABLES=y
 CONFIG_BRIDGE_EBT_BROUTE=y
 # CONFIG_BRIDGE_EBT_T_FILTER is not set

@@ -1785,8 +1785,10 @@ long _do_fork(unsigned long clone_flags,
 	int trace = 0;
 	long nr;
 
+#ifdef CONFIG_CPU_BOOST
 	if (is_zygote_pid(current->pid))
 		do_input_boost_max();
+#endif CONFIG_CPU_BOOST
 
 	/*
 	 * Determine whether and which event to report to ptracer.  When

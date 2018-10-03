@@ -1787,15 +1787,17 @@ long _do_fork(unsigned long clone_flags,
 	int trace = 0;
 	long nr;
 
-#ifdef CONFIG_CPU_BOOST
-	if (is_zygote_pid(current->pid))
-		do_input_boost_max();
-#endif CONFIG_CPU_BOOST
-
 	/* Boost CPU to the max for 1250 ms when userspace launches an app */
 	if (is_zygote_pid(current->pid)) {
+
+#ifdef CONFIG_CPU_BOOST
+		do_input_boost_max();
+#elif defined(CONFIG_CPU_INPUT_BOOST)
 		cpu_input_boost_kick_max(1250);
+#endif
+#ifdef CONFIG_DEVFREQ_BOOST
 		devfreq_boost_kick_max(DEVFREQ_MSM_CPUBW, 1250);
+#endif
 	}
 
 	/*

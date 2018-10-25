@@ -107,42 +107,6 @@ static void find_freq(struct devfreq_dev_profile *p, unsigned long *freq,
 		*freq = atleast;
 }
 
-static void find_freq_cpubw(struct devfreq_dev_profile *p, unsigned long *freq,
-                        u32 flags)
-{
-        int i;
-        unsigned long atmost, atleast, f;
-        int min_index, max_index;
-
-        atmost = p->freq_table[min_index];
-        atleast = p->freq_table[max_index-1];
-
-        for (i = min_index; i < max_index; i++) {
-                f = p->freq_table[i];
-                if (f <= *freq)
-                        atmost = max(f, atmost);
-                if (f >= *freq)
-                        atleast = min(f, atleast);
-        }
-
-        if (flags & DEVFREQ_FLAG_LEAST_UPPER_BOUND)
-                *freq = atmost;
-        else
-                *freq = atleast;
-}
-
-static int devbw_target_cpubw(struct device *dev, unsigned long *freq, u32 flags)
-{
-	struct dev_data *d = dev_get_drvdata(dev);
-
-	find_freq_cpubw(&d->dp, freq, flags);
-
-	if (!d->gov_ab)
-		return set_bw(dev, *freq, find_ab(d, freq));
-	else
-		return set_bw(dev, *freq, d->gov_ab);
-}
-
 static int devbw_target(struct device *dev, unsigned long *freq, u32 flags)
 {
 	struct dev_data *d = dev_get_drvdata(dev);

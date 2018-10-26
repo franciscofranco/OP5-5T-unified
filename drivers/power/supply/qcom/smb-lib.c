@@ -628,6 +628,7 @@ static const struct apsd_result *smblib_update_usb_type(struct smb_charger *chg)
 		chg->real_charger_type = apsd_result->pst;
 	}
 
+	/*Yangfb@bsp add to fix fastcharge test not pass*/
 	if (chg->dash_on) {
 		chg->real_charger_type = POWER_SUPPLY_TYPE_USB_DCP;
 		chg->usb_psy_desc.type = POWER_SUPPLY_TYPE_USB_DCP;

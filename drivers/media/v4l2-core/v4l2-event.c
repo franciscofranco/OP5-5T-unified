@@ -310,12 +310,8 @@ int v4l2_event_unsubscribe(struct v4l2_fh *fh,
 	if (sev && sev->ops && sev->ops->del)
 		sev->ops->del(sev);
 
-<<<<<<< HEAD
-	kvfree(sev);
-=======
 	kfree(sev);
 	mutex_unlock(&fh->subscribe_lock);
->>>>>>> als/oneplus/QC8998_O_8.1
 
 	return 0;
 }

@@ -171,7 +171,7 @@ static bool put_wifi_rate_stat(tpSirWifiRateStat stats,
 	    nla_put_u32(vendor_event,
 			   QCA_WLAN_VENDOR_ATTR_LL_STATS_RATE_RETRIES_LONG,
 			   stats->retriesLong)) {
-		hdd_err("QCA_WLAN_VENDOR_ATTR put fail");
+		hdd_debug("QCA_WLAN_VENDOR_ATTR put fail");
 		return false;
 	}
 
@@ -203,7 +203,7 @@ static bool put_wifi_peer_info(tpSirWifiPeerInfo stats,
 	    nla_put_u32(vendor_event,
 			   QCA_WLAN_VENDOR_ATTR_LL_STATS_PEER_INFO_NUM_RATES,
 			   stats->numRate)) {
-		hdd_err("QCA_WLAN_VENDOR_ATTR put fail");
+		hdd_debug("QCA_WLAN_VENDOR_ATTR put fail");
 		goto error;
 	}
 
@@ -228,7 +228,7 @@ static bool put_wifi_peer_info(tpSirWifiPeerInfo stats,
 
 			if (false ==
 			    put_wifi_rate_stat(pRateStats, vendor_event)) {
-				hdd_err("QCA_WLAN_VENDOR_ATTR put fail");
+				hdd_debug("QCA_WLAN_VENDOR_ATTR put fail");
 				return false;
 			}
 			nla_nest_end(vendor_event, rates);
@@ -295,7 +295,7 @@ static bool put_wifi_wmm_ac_stat(tpSirWifiWmmAcStat stats,
 	    nla_put_u32(vendor_event,
 			QCA_WLAN_VENDOR_ATTR_LL_STATS_WMM_AC_CONTENTION_NUM_SAMPLES,
 			stats->contentionNumSamples)) {
-		hdd_err("QCA_WLAN_VENDOR_ATTR put fail");
+		hdd_debug("QCA_WLAN_VENDOR_ATTR put fail");
 		return false;
 	}
 
@@ -339,7 +339,7 @@ static bool put_wifi_interface_info(tpSirWifiInterfaceInfo stats,
 	    nla_put(vendor_event,
 		    QCA_WLAN_VENDOR_ATTR_LL_STATS_IFACE_INFO_COUNTRY_STR,
 		    WNI_CFG_COUNTRY_CODE_LEN, stats->countryStr)) {
-		hdd_err("QCA_WLAN_VENDOR_ATTR put fail");
+		hdd_debug("QCA_WLAN_VENDOR_ATTR put fail");
 		return false;
 	}
 
@@ -364,7 +364,7 @@ static bool put_wifi_iface_stats(tpSirWifiIfaceStat pWifiIfaceStat,
 
 	if (false == put_wifi_interface_info(&pWifiIfaceStat->info,
 					     vendor_event)) {
-		hdd_err("QCA_WLAN_VENDOR_ATTR put fail");
+		hdd_debug("QCA_WLAN_VENDOR_ATTR put fail");
 		return false;
 
 	}
@@ -424,7 +424,7 @@ static bool put_wifi_iface_stats(tpSirWifiIfaceStat pWifiIfaceStat,
 	    nla_put_u32(vendor_event,
 			QCA_WLAN_VENDOR_ATTR_LL_STATS_IFACE_PPDU_FAIL_CNT,
 			pWifiIfaceStat->ppdu_fail_cnt)) {
-		hdd_err("QCA_WLAN_VENDOR_ATTR put fail");
+		hdd_debug("QCA_WLAN_VENDOR_ATTR put fail");
 		return false;
 	}
 
@@ -441,7 +441,7 @@ static bool put_wifi_iface_stats(tpSirWifiIfaceStat pWifiIfaceStat,
 		if (false ==
 		    put_wifi_wmm_ac_stat(&pWifiIfaceStat->AccessclassStats[i],
 					 vendor_event)) {
-			hdd_err("put_wifi_wmm_ac_stat Fail");
+			hdd_debug("put_wifi_wmm_ac_stat Fail");
 			return false;
 		}
 
@@ -498,7 +498,7 @@ bool hdd_get_interface_info(hdd_adapter_t *pAdapter,
 		}
 		if (eConnectionState_Connecting ==
 		    pHddStaCtx->conn_info.connState) {
-			hdd_err("Session ID %d, Connection is in progress",
+			hdd_debug("Session ID %d, Connection is in progress",
 				pAdapter->sessionId);
 			pInfo->state = WIFI_ASSOCIATING;
 		}
@@ -584,7 +584,7 @@ static void hdd_link_layer_process_peer_stats(hdd_adapter_t *pAdapter,
 				LL_STATS_EVENT_BUF_SIZE);
 
 	if (!vendor_event) {
-		hdd_err("cfg80211_vendor_cmd_alloc_reply_skb failed");
+		hdd_debug("cfg80211_vendor_cmd_alloc_reply_skb failed");
 		return;
 	}
 
@@ -597,7 +597,7 @@ static void hdd_link_layer_process_peer_stats(hdd_adapter_t *pAdapter,
 	    nla_put_u32(vendor_event,
 			QCA_WLAN_VENDOR_ATTR_LL_STATS_IFACE_NUM_PEERS,
 			pWifiPeerStat->numPeers)) {
-		hdd_err("QCA_WLAN_VENDOR_ATTR put fail");
+		hdd_debug("QCA_WLAN_VENDOR_ATTR put fail");
 
 		kfree_skb(vendor_event);
 		return;
@@ -612,7 +612,7 @@ static void hdd_link_layer_process_peer_stats(hdd_adapter_t *pAdapter,
 		peerInfo = nla_nest_start(vendor_event,
 					  QCA_WLAN_VENDOR_ATTR_LL_STATS_PEER_INFO);
 		if (peerInfo == NULL) {
-			hdd_err("nla_nest_start failed");
+			hdd_debug("nla_nest_start failed");
 			kfree_skb(vendor_event);
 			return;
 		}
@@ -620,7 +620,7 @@ static void hdd_link_layer_process_peer_stats(hdd_adapter_t *pAdapter,
 		for (i = 1; i <= pWifiPeerStat->numPeers; i++) {
 			peers = nla_nest_start(vendor_event, i);
 			if (peers == NULL) {
-				hdd_err("nla_nest_start failed");
+				hdd_debug("nla_nest_start failed");
 				kfree_skb(vendor_event);
 				return;
 			}
@@ -629,7 +629,7 @@ static void hdd_link_layer_process_peer_stats(hdd_adapter_t *pAdapter,
 
 			if (false ==
 			    put_wifi_peer_info(pWifiPeerInfo, vendor_event)) {
-				hdd_err("put_wifi_peer_info fail");
+				hdd_debug("put_wifi_peer_info fail");
 				kfree_skb(vendor_event);
 				return;
 			}
@@ -693,21 +693,21 @@ static void hdd_link_layer_process_iface_stats(hdd_adapter_t *pAdapter,
 				LL_STATS_EVENT_BUF_SIZE);
 
 	if (!vendor_event) {
-		hdd_err("cfg80211_vendor_cmd_alloc_reply_skb failed");
+		hdd_debug("cfg80211_vendor_cmd_alloc_reply_skb failed");
 		return;
 	}
 
 	hdd_debug("WMI_LINK_STATS_IFACE Data");
 
 	if (false == hdd_get_interface_info(pAdapter, &pWifiIfaceStat->info)) {
-		hdd_err("hdd_get_interface_info get fail");
+		hdd_debug("hdd_get_interface_info get fail");
 		kfree_skb(vendor_event);
 		return;
 	}
 
 	if (false ==
 	    put_wifi_iface_stats(pWifiIfaceStat, num_peers, vendor_event)) {
-		hdd_err("put_wifi_iface_stats fail");
+		hdd_debug("put_wifi_iface_stats fail");
 		kfree_skb(vendor_event);
 		return;
 	}
@@ -736,7 +736,7 @@ static int hdd_llstats_radio_fill_channels(hdd_adapter_t *adapter,
 	chlist = nla_nest_start(vendor_event,
 				QCA_WLAN_VENDOR_ATTR_LL_STATS_CH_INFO);
 	if (chlist == NULL) {
-		hdd_err("nla_nest_start failed");
+		hdd_debug("nla_nest_start failed");
 		return -EINVAL;
 	}
 
@@ -747,7 +747,7 @@ static int hdd_llstats_radio_fill_channels(hdd_adapter_t *adapter,
 
 		chinfo = nla_nest_start(vendor_event, i);
 		if (chinfo == NULL) {
-			hdd_err("nla_nest_start failed");
+			hdd_debug("nla_nest_start failed");
 			return -EINVAL;
 		}
 
@@ -769,7 +769,7 @@ static int hdd_llstats_radio_fill_channels(hdd_adapter_t *adapter,
 		    nla_put_u32(vendor_event,
 				QCA_WLAN_VENDOR_ATTR_LL_STATS_CHANNEL_CCA_BUSY_TIME,
 				channel_stats->ccaBusyTime)) {
-			hdd_err("nla_put failed");
+			hdd_debug("nla_put failed");
 			return -EINVAL;
 		}
 		nla_nest_end(vendor_event, chinfo);
@@ -811,7 +811,7 @@ static int hdd_llstats_post_radio_stats(hdd_adapter_t *adapter,
 					LL_STATS_EVENT_BUF_SIZE);
 
 	if (!vendor_event) {
-		hdd_err("cfg80211_vendor_cmd_alloc_reply_skb failed");
+		hdd_debug("cfg80211_vendor_cmd_alloc_reply_skb failed");
 		return -ENOMEM;
 	}
 
@@ -860,7 +860,7 @@ static int hdd_llstats_post_radio_stats(hdd_adapter_t *adapter,
 	    nla_put_u32(vendor_event,
 			QCA_WLAN_VENDOR_ATTR_LL_STATS_RADIO_NUM_CHANNELS,
 			radiostat->numChannels)) {
-		hdd_err("QCA_WLAN_VENDOR_ATTR put fail");
+		hdd_debug("QCA_WLAN_VENDOR_ATTR put fail");
 		goto failure;
 	}
 
@@ -870,7 +870,7 @@ static int hdd_llstats_post_radio_stats(hdd_adapter_t *adapter,
 			    sizeof(u32) *
 			    radiostat->total_num_tx_power_levels,
 			    radiostat->tx_time_per_power_level)) {
-			hdd_err("nla_put fail");
+			hdd_debug("nla_put fail");
 			goto failure;
 		}
 	}
@@ -1054,7 +1054,7 @@ void wlan_hdd_cfg80211_link_layer_stats_callback(void *ctx, int indType,
 					   linkLayerStatsResults->ifaceId);
 
 	if (!pAdapter) {
-		hdd_err("vdev_id %d does not exist with host",
+		hdd_debug("vdev_id %d does not exist with host",
 			linkLayerStatsResults->ifaceId);
 		return;
 	}
@@ -1074,7 +1074,7 @@ void wlan_hdd_cfg80211_link_layer_stats_callback(void *ctx, int indType,
 
 		request = hdd_request_get(cookie);
 		if (!request) {
-			hdd_err("Obselete request");
+			hdd_debug("Obselete request");
 			return;
 		}
 
@@ -1083,7 +1083,7 @@ void wlan_hdd_cfg80211_link_layer_stats_callback(void *ctx, int indType,
 		/* validate response received from target */
 		if ((priv->request_id != linkLayerStatsResults->rspId) ||
 		    !(priv->request_bitmap & linkLayerStatsResults->paramId)) {
-			hdd_err("Error : Request id %d response id %d request bitmap 0x%x response bitmap 0x%x",
+			hdd_debug("Error : Request id %d response id %d request bitmap 0x%x response bitmap 0x%x",
 			priv->request_id, linkLayerStatsResults->rspId,
 			priv->request_bitmap, linkLayerStatsResults->paramId);
 			hdd_request_put(request);
@@ -1129,7 +1129,7 @@ void wlan_hdd_cfg80211_link_layer_stats_callback(void *ctx, int indType,
 						~(WMI_LINK_STATS_ALL_PEER);
 
 		} else {
-			hdd_err("INVALID LL_STATS_NOTIFY RESPONSE");
+			hdd_debug("INVALID LL_STATS_NOTIFY RESPONSE");
 		}
 
 		/* complete response event if all requests are completed */
@@ -1157,13 +1157,13 @@ void hdd_lost_link_info_cb(void *context,
 		return;
 
 	if (NULL == lost_link_info) {
-		hdd_err("lost_link_info is NULL");
+		hdd_debug("lost_link_info is NULL");
 		return;
 	}
 
 	adapter = hdd_get_adapter_by_vdev(hdd_ctx, lost_link_info->vdev_id);
 	if (NULL == adapter) {
-		hdd_err("invalid adapter");
+		hdd_debug("invalid adapter");
 		return;
 	}
 
@@ -1214,7 +1214,7 @@ __wlan_hdd_cfg80211_ll_stats_set(struct wiphy *wiphy,
 		return -EINVAL;
 
 	if (hdd_validate_adapter(pAdapter)) {
-		hdd_err("Invalid Adapter");
+		hdd_debug("Invalid Adapter");
 		return -EINVAL;
 	}
 
@@ -1227,19 +1227,19 @@ __wlan_hdd_cfg80211_ll_stats_set(struct wiphy *wiphy,
 	if (hdd_nla_parse(tb_vendor, QCA_WLAN_VENDOR_ATTR_LL_STATS_SET_MAX,
 			  (struct nlattr *)data, data_len,
 			  qca_wlan_vendor_ll_set_policy)) {
-		hdd_err("maximum attribute not present");
+		hdd_debug("maximum attribute not present");
 		return -EINVAL;
 	}
 
 	if (!tb_vendor
 	    [QCA_WLAN_VENDOR_ATTR_LL_STATS_SET_CONFIG_MPDU_SIZE_THRESHOLD]) {
-		hdd_err("MPDU size Not present");
+		hdd_debug("MPDU size Not present");
 		return -EINVAL;
 	}
 
 	if (!tb_vendor
 	    [QCA_WLAN_VENDOR_ATTR_LL_STATS_SET_CONFIG_AGGRESSIVE_STATS_GATHERING]) {
-		hdd_err("Stats Gathering Not Present");
+		hdd_debug("Stats Gathering Not Present");
 		return -EINVAL;
 	}
 
@@ -1263,7 +1263,7 @@ __wlan_hdd_cfg80211_ll_stats_set(struct wiphy *wiphy,
 
 	if (QDF_STATUS_SUCCESS != sme_ll_stats_set_req(pHddCtx->hHal,
 						       &LinkLayerStatsSetReq)) {
-		hdd_err("sme_ll_stats_set_req Failed");
+		hdd_debug("sme_ll_stats_set_req Failed");
 		return -EINVAL;
 	}
 
@@ -1335,7 +1335,7 @@ static int wlan_hdd_send_ll_stats_req(hdd_context_t *hdd_ctx,
 
 	request = hdd_request_alloc(&params);
 	if (!request) {
-		hdd_err("Request Allocation Failure");
+		hdd_debug("Request Allocation Failure");
 		return -ENOMEM;
 	}
 
@@ -1348,14 +1348,14 @@ static int wlan_hdd_send_ll_stats_req(hdd_context_t *hdd_ctx,
 
 	if (QDF_STATUS_SUCCESS !=
 			sme_ll_stats_get_req(hdd_ctx->hHal, req, cookie)) {
-		hdd_err("sme_ll_stats_get_req Failed");
+		hdd_debug("sme_ll_stats_get_req Failed");
 		ret = -EINVAL;
 		goto exit;
 	}
 
 	ret = hdd_request_wait_for_response(request);
 	if (ret) {
-		hdd_err("Target response timed out request id %d request bitmap 0x%x",
+		hdd_debug("Target response timed out request id %d request bitmap 0x%x",
 			priv->request_id, priv->request_bitmap);
 		ret = -ETIMEDOUT;
 		goto exit;
@@ -1387,7 +1387,7 @@ int wlan_hdd_ll_stats_get(hdd_adapter_t *adapter, uint32_t req_id,
 		return -EINVAL;
 
 	if (hddstactx->hdd_ReassocScenario) {
-		hdd_err("Roaming in progress, cannot process the request");
+		hdd_debug("Roaming in progress, cannot process the request");
 		return -EBUSY;
 	}
 
@@ -1401,7 +1401,7 @@ int wlan_hdd_ll_stats_get(hdd_adapter_t *adapter, uint32_t req_id,
 	get_req.staId = adapter->sessionId;
 
 	if (wlan_hdd_validate_session_id(adapter->sessionId)) {
-		hdd_err("invalid session id: %d", adapter->sessionId);
+		hdd_debug("invalid session id: %d", adapter->sessionId);
 		return -EINVAL;
 	}
 
@@ -1409,7 +1409,7 @@ int wlan_hdd_ll_stats_get(hdd_adapter_t *adapter, uint32_t req_id,
 	ret = wlan_hdd_send_ll_stats_req(hdd_ctx, &get_req);
 	rtnl_unlock();
 	if (0 != ret)
-		hdd_err("Send LL stats req failed, id:%u, mask:%d, session:%d",
+		hdd_debug("Send LL stats req failed, id:%u, mask:%d, session:%d",
 			req_id, req_mask, adapter->sessionId);
 
 	EXIT();
@@ -1458,24 +1458,24 @@ __wlan_hdd_cfg80211_ll_stats_get(struct wiphy *wiphy,
 	}
 
 	if (hddstactx->hdd_ReassocScenario) {
-		hdd_err("Roaming in progress, cannot process the request");
+		hdd_debug("Roaming in progress, cannot process the request");
 		return -EBUSY;
 	}
 
 	if (hdd_nla_parse(tb_vendor, QCA_WLAN_VENDOR_ATTR_LL_STATS_GET_MAX,
 			  (struct nlattr *)data, data_len,
 			  qca_wlan_vendor_ll_get_policy)) {
-		hdd_err("max attribute not present");
+		hdd_debug("max attribute not present");
 		return -EINVAL;
 	}
 
 	if (!tb_vendor[QCA_WLAN_VENDOR_ATTR_LL_STATS_GET_CONFIG_REQ_ID]) {
-		hdd_err("Request Id Not present");
+		hdd_debug("Request Id Not present");
 		return -EINVAL;
 	}
 
 	if (!tb_vendor[QCA_WLAN_VENDOR_ATTR_LL_STATS_GET_CONFIG_REQ_MASK]) {
-		hdd_err("Req Mask Not present");
+		hdd_debug("Req Mask Not present");
 		return -EINVAL;
 	}
 
@@ -1489,13 +1489,13 @@ __wlan_hdd_cfg80211_ll_stats_get(struct wiphy *wiphy,
 	LinkLayerStatsGetReq.staId = pAdapter->sessionId;
 
 	if (wlan_hdd_validate_session_id(pAdapter->sessionId)) {
-		hdd_err("invalid session id: %d", pAdapter->sessionId);
+		hdd_debug("invalid session id: %d", pAdapter->sessionId);
 		return -EINVAL;
 	}
 
 	ret = wlan_hdd_send_ll_stats_req(pHddCtx, &LinkLayerStatsGetReq);
 	if (0 != ret) {
-		hdd_err("Failed to send LL stats request (id:%u)",
+		hdd_debug("Failed to send LL stats request (id:%u)",
 			LinkLayerStatsGetReq.reqId);
 		return ret;
 	}
@@ -1581,13 +1581,13 @@ __wlan_hdd_cfg80211_ll_stats_clear(struct wiphy *wiphy,
 	if (hdd_nla_parse(tb_vendor, QCA_WLAN_VENDOR_ATTR_LL_STATS_CLR_MAX,
 			  (struct nlattr *)data, data_len,
 			  qca_wlan_vendor_ll_clr_policy)) {
-		hdd_err("STATS_CLR_MAX is not present");
+		hdd_debug("STATS_CLR_MAX is not present");
 		return -EINVAL;
 	}
 
 	if (!tb_vendor[QCA_WLAN_VENDOR_ATTR_LL_STATS_CLR_CONFIG_REQ_MASK] ||
 	    !tb_vendor[QCA_WLAN_VENDOR_ATTR_LL_STATS_CLR_CONFIG_STOP_REQ]) {
-		hdd_err("Error in LL_STATS CLR CONFIG PARA");
+		hdd_debug("Error in LL_STATS CLR CONFIG PARA");
 		return -EINVAL;
 	}
 
@@ -1626,7 +1626,7 @@ __wlan_hdd_cfg80211_ll_stats_clear(struct wiphy *wiphy,
 			    nla_put_u32(temp_skbuff,
 					QCA_WLAN_VENDOR_ATTR_LL_STATS_CLR_CONFIG_STOP_RSP,
 					stopReq)) {
-				hdd_err("LL_STATS_CLR put fail");
+				hdd_debug("LL_STATS_CLR put fail");
 				kfree_skb(temp_skbuff);
 				return -EINVAL;
 			}
@@ -1688,7 +1688,7 @@ hdd_populate_per_peer_ps_info(tSirWifiPeerInfo *wifi_peer_info,
 			      struct sk_buff *vendor_event)
 {
 	if (!wifi_peer_info) {
-		hdd_err("Invalid pointer to peer info.");
+		hdd_debug("Invalid pointer to peer info.");
 		return -EINVAL;
 	}
 
@@ -1698,7 +1698,7 @@ hdd_populate_per_peer_ps_info(tSirWifiPeerInfo *wifi_peer_info,
 	    nla_put(vendor_event,
 		    QCA_WLAN_VENDOR_ATTR_LL_STATS_EXT_PEER_MAC_ADDRESS,
 		    QDF_MAC_ADDR_SIZE, &wifi_peer_info->peerMacAddress)) {
-		hdd_err("QCA_WLAN_VENDOR_ATTR put fail.");
+		hdd_debug("QCA_WLAN_VENDOR_ATTR put fail.");
 		return -EINVAL;
 	}
 	return 0;
@@ -1719,27 +1719,27 @@ static int hdd_populate_wifi_peer_ps_info(tSirWifiPeerStat *data,
 	struct nlattr *peer_info, *peers;
 
 	if (!data) {
-		hdd_err("Invalid pointer to Wifi peer stat.");
+		hdd_debug("Invalid pointer to Wifi peer stat.");
 		return -EINVAL;
 	}
 
 	peer_num = data->numPeers;
 	if (peer_num == 0) {
-		hdd_err("Peer number is zero.");
+		hdd_debug("Peer number is zero.");
 		return -EINVAL;
 	}
 
 	if (nla_put_u32(vendor_event,
 			QCA_WLAN_VENDOR_ATTR_LL_STATS_EXT_PEER_NUM,
 			peer_num)) {
-		hdd_err("QCA_WLAN_VENDOR_ATTR put fail");
+		hdd_debug("QCA_WLAN_VENDOR_ATTR put fail");
 		return -EINVAL;
 	}
 
 	peer_info = nla_nest_start(vendor_event,
 			       QCA_WLAN_VENDOR_ATTR_LL_STATS_EXT_PEER_PS_CHG);
 	if (peer_info == NULL) {
-		hdd_err("nla_nest_start failed");
+		hdd_debug("nla_nest_start failed");
 		return -EINVAL;
 	}
 
@@ -1748,7 +1748,7 @@ static int hdd_populate_wifi_peer_ps_info(tSirWifiPeerStat *data,
 		peers = nla_nest_start(vendor_event, i);
 
 		if (peers == NULL) {
-			hdd_err("nla_nest_start failed");
+			hdd_debug("nla_nest_start failed");
 			return -EINVAL;
 		}
 
@@ -1784,7 +1784,7 @@ hdd_populate_tx_failure_info(struct sir_wifi_iface_tx_fail *tx_fail,
 			tx_fail->msdu_num) ||
 	    nla_put_u32(skb, QCA_WLAN_VENDOR_ATTR_LL_STATS_EXT_TX_STATUS,
 			tx_fail->status)) {
-		hdd_err("QCA_WLAN_VENDOR_ATTR put fail");
+		hdd_debug("QCA_WLAN_VENDOR_ATTR put fail");
 		status = -EINVAL;
 	}
 
@@ -1833,7 +1833,7 @@ hdd_populate_wifi_channel_cca_info(struct sir_wifi_chan_cca_stats *cca,
 	    nla_put_u32(vendor_event,
 			QCA_WLAN_VENDOR_ATTR_LL_STATS_EXT_IFACE_ID,
 			cca->vdev_id)) {
-		hdd_err(FL("QCA_WLAN_VENDOR_ATTR put fail"));
+		hdd_debug(FL("QCA_WLAN_VENDOR_ATTR put fail"));
 		return -EINVAL;
 	}
 	return 0;
@@ -1862,14 +1862,14 @@ hdd_populate_wifi_signal_info(struct sir_wifi_peer_signal_stats *peer_signal,
 	if (nla_put_u32(skb,
 			QCA_WLAN_VENDOR_ATTR_LL_STATS_EXT_PEER_ANT_NUM,
 			chain_count)) {
-		hdd_err(FL("QCA_WLAN_VENDOR_ATTR put fail"));
+		hdd_debug(FL("QCA_WLAN_VENDOR_ATTR put fail"));
 		return -EINVAL;
 	}
 
 	att = nla_nest_start(skb,
 			     QCA_WLAN_VENDOR_ATTR_LL_STATS_EXT_PEER_SIGNAL);
 	if (att == NULL) {
-		hdd_err(FL("nla_nest_start failed"));
+		hdd_debug(FL("nla_nest_start failed"));
 		return -EINVAL;
 	}
 
@@ -1877,7 +1877,7 @@ hdd_populate_wifi_signal_info(struct sir_wifi_peer_signal_stats *peer_signal,
 		chains = nla_nest_start(skb, i);
 
 		if (chains == NULL) {
-			hdd_err(FL("nla_nest_start failed"));
+			hdd_debug(FL("nla_nest_start failed"));
 			return -EINVAL;
 		}
 
@@ -1898,7 +1898,7 @@ hdd_populate_wifi_signal_info(struct sir_wifi_peer_signal_stats *peer_signal,
 		    nla_put_u32(skb,
 				QCA_WLAN_VENDOR_ATTR_LL_STATS_EXT_TX_MPDU,
 				peer_signal->per_ant_tx_mpdus[i])) {
-			hdd_err(FL("QCA_WLAN_VENDOR_ATTR put fail"));
+			hdd_debug(FL("QCA_WLAN_VENDOR_ATTR put fail"));
 			return -EINVAL;
 		}
 		nla_nest_end(skb, chains);
@@ -1991,7 +1991,7 @@ hdd_populate_wifi_wmm_ac_tx_info(struct sir_wifi_tx *tx_stats,
 	return 0;
 
 put_attr_fail:
-	hdd_err(FL("QCA_WLAN_VENDOR_ATTR put fail"));
+	hdd_debug(FL("QCA_WLAN_VENDOR_ATTR put fail"));
 	return -EINVAL;
 }
 
@@ -2059,7 +2059,7 @@ hdd_populate_wifi_wmm_ac_rx_info(struct sir_wifi_rx *rx_stats,
 	return 0;
 
 put_attr_fail:
-	hdd_err(FL("QCA_WLAN_VENDOR_ATTR put fail"));
+	hdd_debug(FL("QCA_WLAN_VENDOR_ATTR put fail"));
 	return -EINVAL;
 }
 
@@ -2088,11 +2088,11 @@ hdd_populate_wifi_wmm_ac_info(struct sir_wifi_ll_ext_wmm_ac_stats *ac_stats,
 	return 0;
 
 nest_start_fail:
-	hdd_err(FL("nla_nest_start failed"));
+	hdd_debug(FL("nla_nest_start failed"));
 	return -EINVAL;
 
 put_attr_fail:
-	hdd_err(FL("QCA_WLAN_VENDOR_ATTR put fail"));
+	hdd_debug(FL("QCA_WLAN_VENDOR_ATTR put fail"));
 	return -EINVAL;
 }
 
@@ -2131,20 +2131,20 @@ hdd_populate_wifi_ll_ext_peer_info(struct sir_wifi_ll_ext_peer_stats *peers,
 	    nla_put(skb, QCA_WLAN_VENDOR_ATTR_LL_STATS_EXT_PEER_MAC_ADDRESS,
 		    QDF_MAC_ADDR_SIZE, peers->mac_address) ||
 	    hdd_populate_wifi_signal_info(&peers->peer_signal_stats, skb)) {
-		hdd_err(FL("put peer signal attr failed"));
+		hdd_debug(FL("put peer signal attr failed"));
 		return -EINVAL;
 	}
 
 	wmm_ac = nla_nest_start(skb,
 				QCA_WLAN_VENDOR_ATTR_LL_STATS_EXT_TX_STATUS);
 	if (wmm_ac == NULL) {
-		hdd_err(FL("nla_nest_start failed"));
+		hdd_debug(FL("nla_nest_start failed"));
 		return -EINVAL;
 	}
 
 	for (i = 0; i < WLAN_MAX_AC; i++) {
 		if (hdd_populate_wifi_wmm_ac_info(&peers->ac_stats[i], skb)) {
-			hdd_err(FL("put WMM AC attr failed"));
+			hdd_debug(FL("put WMM AC attr failed"));
 			return -EINVAL;
 		}
 	}
@@ -2193,14 +2193,14 @@ hdd_populate_wifi_ll_ext_stats(struct sir_wifi_ll_ext_stats *stats,
 	channels = nla_nest_start(skb,
 				  QCA_WLAN_VENDOR_ATTR_LL_STATS_EXT_CCA_BSS);
 	if (channels == NULL) {
-		hdd_err(FL("nla_nest_start failed"));
+		hdd_debug(FL("nla_nest_start failed"));
 		return -EINVAL;
 	}
 
 	for (i = 0; i < stats->channel_num; i++) {
 		channel_info = nla_nest_start(skb, i);
 		if (channel_info == NULL) {
-			hdd_err(FL("nla_nest_start failed"));
+			hdd_debug(FL("nla_nest_start failed"));
 			return -EINVAL;
 		}
 
@@ -2213,14 +2213,14 @@ hdd_populate_wifi_ll_ext_stats(struct sir_wifi_ll_ext_stats *stats,
 	peer_info = nla_nest_start(skb,
 				   QCA_WLAN_VENDOR_ATTR_LL_STATS_EXT_PEER);
 	if (peer_info == NULL) {
-		hdd_err(FL("nla_nest_start failed"));
+		hdd_debug(FL("nla_nest_start failed"));
 		return -EINVAL;
 	}
 
 	for (i = 0; i < stats->peer_num; i++) {
 		peer = nla_nest_start(skb, i);
 		if (peer == NULL) {
-			hdd_err(FL("nla_nest_start failed"));
+			hdd_debug(FL("nla_nest_start failed"));
 			return -EINVAL;
 		}
 
@@ -2234,7 +2234,7 @@ hdd_populate_wifi_ll_ext_stats(struct sir_wifi_ll_ext_stats *stats,
 	return 0;
 
 put_attr_fail:
-	hdd_err(FL("QCA_WLAN_VENDOR_ATTR put fail"));
+	hdd_debug(FL("QCA_WLAN_VENDOR_ATTR put fail"));
 	return -EINVAL;
 }
 
@@ -2265,12 +2265,12 @@ void wlan_hdd_cfg80211_link_layer_stats_ext_callback(tHddHandle ctx,
 	ENTER();
 
 	if (!ctx) {
-		hdd_err("Invalid HDD context.");
+		hdd_debug("Invalid HDD context.");
 		return;
 	}
 
 	if (!rsp) {
-		hdd_err("Invalid result.");
+		hdd_debug("Invalid result.");
 		return;
 	}
 
@@ -2285,7 +2285,7 @@ void wlan_hdd_cfg80211_link_layer_stats_ext_callback(tHddHandle ctx,
 					  linkLayer_stats_results->ifaceId);
 
 	if (NULL == adapter) {
-		hdd_err("vdev_id %d does not exist with host.",
+		hdd_debug("vdev_id %d does not exist with host.",
 			linkLayer_stats_results->ifaceId);
 		return;
 	}
@@ -2295,7 +2295,7 @@ void wlan_hdd_cfg80211_link_layer_stats_ext_callback(tHddHandle ctx,
 			NULL, LL_STATS_EVENT_BUF_SIZE + NLMSG_HDRLEN,
 			index, GFP_KERNEL);
 	if (!skb) {
-		hdd_err("cfg80211_vendor_event_alloc failed.");
+		hdd_debug("cfg80211_vendor_event_alloc failed.");
 		return;
 	}
 
@@ -2504,7 +2504,7 @@ static int __wlan_hdd_cfg80211_ll_stats_ext_set_param(struct wiphy *wiphy,
 	if (hdd_nla_parse(tb, QCA_WLAN_VENDOR_ATTR_LL_STATS_EXT_MAX,
 			  (struct nlattr *)data, data_len,
 			  qca_wlan_vendor_ll_ext_policy)) {
-		hdd_err("maximum attribute not present");
+		hdd_debug("maximum attribute not present");
 		return -EPERM;
 	}
 
@@ -2766,7 +2766,7 @@ set_thresh:
 	hdd_info(FL("send thresh settings to target"));
 	if (QDF_STATUS_SUCCESS != sme_ll_stats_set_thresh(hdd_ctx->hHal,
 							  &thresh)) {
-		hdd_err(FL("sme_ll_stats_set_thresh failed."));
+		hdd_debug(FL("sme_ll_stats_set_thresh failed."));
 		return -EINVAL;
 	}
 	return 0;
@@ -2777,7 +2777,7 @@ set_period:
 				     WMI_PDEV_PARAM_STATS_OBSERVATION_PERIOD,
 				     period, PDEV_CMD);
 	if (status) {
-		hdd_err(FL("wma_cli_set_command set_period failed."));
+		hdd_debug(FL("wma_cli_set_command set_period failed."));
 		return -EINVAL;
 	}
 	return 0;
@@ -2901,7 +2901,7 @@ void wlan_hdd_cfg80211_stats_ext_callback(void *ctx,
 	pAdapter = hdd_get_adapter_by_vdev(pHddCtx, data->vdev_id);
 
 	if (NULL == pAdapter) {
-		hdd_err("vdev_id %d does not exist with host", data->vdev_id);
+		hdd_debug("vdev_id %d does not exist with host", data->vdev_id);
 		return;
 	}
 
@@ -2914,14 +2914,14 @@ void wlan_hdd_cfg80211_stats_ext_callback(void *ctx,
 						   GFP_KERNEL);
 
 	if (!vendor_event) {
-		hdd_err("cfg80211_vendor_event_alloc failed");
+		hdd_debug("cfg80211_vendor_event_alloc failed");
 		return;
 	}
 
 	ret_val = nla_put_u32(vendor_event, QCA_WLAN_VENDOR_ATTR_IFINDEX,
 			      pAdapter->dev->ifindex);
 	if (ret_val) {
-		hdd_err("QCA_WLAN_VENDOR_ATTR_IFINDEX put fail");
+		hdd_debug("QCA_WLAN_VENDOR_ATTR_IFINDEX put fail");
 		kfree_skb(vendor_event);
 
 		return;
@@ -2931,7 +2931,7 @@ void wlan_hdd_cfg80211_stats_ext_callback(void *ctx,
 			  data->event_data_len, data->event_data);
 
 	if (ret_val) {
-		hdd_err("QCA_WLAN_VENDOR_ATTR_STATS_EXT put fail");
+		hdd_debug("QCA_WLAN_VENDOR_ATTR_STATS_EXT put fail");
 		kfree_skb(vendor_event);
 
 		return;
@@ -2953,7 +2953,7 @@ void wlan_hdd_cfg80211_stats_ext2_callback(void *ctx,
 		return;
 
 	if (NULL == pmsg) {
-		hdd_err("msg received here is null");
+		hdd_debug("msg received here is null");
 		return;
 	}
 
@@ -2967,14 +2967,14 @@ void wlan_hdd_cfg80211_stats_ext2_callback(void *ctx,
 			GFP_KERNEL);
 
 	if (!vendor_event) {
-		hdd_err("vendor_event_alloc failed for STATS_EXT2");
+		hdd_debug("vendor_event_alloc failed for STATS_EXT2");
 		return;
 	}
 
 	if (nla_put_u32(vendor_event,
 			QCA_WLAN_VENDOR_ATTR_RX_AGGREGATION_STATS_HOLES_NUM,
 			pmsg->hole_cnt)) {
-		hdd_err("%s put fail",
+		hdd_debug("%s put fail",
 			"QCA_WLAN_VENDOR_ATTR_RX_AGGREGATION_STATS_HOLES_NUM");
 		kfree_skb(vendor_event);
 		return;
@@ -2984,7 +2984,7 @@ void wlan_hdd_cfg80211_stats_ext2_callback(void *ctx,
 			QCA_WLAN_VENDOR_ATTR_RX_AGGREGATION_STATS_HOLES_INFO,
 			(pmsg->hole_cnt)*sizeof(pmsg->hole_info_array[0]),
 			(void *)(pmsg->hole_info_array))) {
-		hdd_err("%s put fail",
+		hdd_debug("%s put fail",
 			"QCA_WLAN_VENDOR_ATTR_RX_AGGREGATION_STATS_HOLES_INFO");
 		kfree_skb(vendor_event);
 		return;
@@ -3063,7 +3063,7 @@ wlan_hdd_get_sap_stats(hdd_adapter_t *adapter, struct station_info *info)
 
 	status = wlan_hdd_get_station_stats(adapter);
 	if (QDF_IS_STATUS_ERROR(status)) {
-		hdd_err("Failed to get SAP stats; status:%d", status);
+		hdd_debug("Failed to get SAP stats; status:%d", status);
 		return qdf_status_to_os_return(status);
 	}
 
@@ -3154,7 +3154,7 @@ static void hdd_get_max_rate_ht(hdd_station_info_t *stainfo,
 		 &supported_mcs_rate_nss2);
 
 	if (stainfo->max_mcs_idx == 0xff) {
-		hdd_err("invalid max_mcs_idx");
+		hdd_debug("invalid max_mcs_idx");
 		/* report real mcs idx */
 		mcsidx = stats->tx_rate.mcs;
 	} else {
@@ -3246,7 +3246,7 @@ static void hdd_get_max_rate_vht(hdd_station_info_t *stainfo,
 			else
 				mcsidx = 9;
 		} else {
-			hdd_err("invalid vht_max_mcs");
+			hdd_debug("invalid vht_max_mcs");
 			/* report real mcs idx */
 			mcsidx = stats->tx_rate.mcs;
 		}
@@ -3509,7 +3509,7 @@ static void hdd_fill_rate_info(struct station_info *sinfo,
 			}
 		} else {
 			/* unknown, treat as eHDD_LINK_SPEED_REPORT_MAX */
-			hdd_err("Invalid value for reportMaxLinkSpeed: %u",
+			hdd_debug("Invalid value for reportMaxLinkSpeed: %u",
 			    cfg->reportMaxLinkSpeed);
 			rssidx = 0;
 		}
@@ -3669,7 +3669,7 @@ static uint8_t hdd_get_rate_flags_ht(uint32_t rate,
 		flags |= eHAL_TX_RATE_HT40;
 		flags |= eHAL_TX_RATE_SGI;
 	} else {
-		hdd_err("invalid params rate %d nss %d mcs %d",
+		hdd_debug("invalid params rate %d nss %d mcs %d",
 				rate, nss, mcs);
 	}
 
@@ -3714,7 +3714,7 @@ static uint8_t hdd_get_rate_flags_vht(uint32_t rate,
 		flags |= eHAL_TX_RATE_VHT20;
 		flags |= eHAL_TX_RATE_SGI;
 	} else {
-		hdd_err("invalid params rate %d nss %d mcs %d",
+		hdd_debug("invalid params rate %d nss %d mcs %d",
 				rate, nss, mcs);
 	}
 
@@ -3744,7 +3744,7 @@ static uint8_t hdd_get_rate_flags(uint32_t rate,
 	else if (mode == SIR_SME_PHY_MODE_VHT)
 		flags = hdd_get_rate_flags_vht(rate, nss, mcs);
 	else
-		hdd_err("invalid mode param %d", mode);
+		hdd_debug("invalid mode param %d", mode);
 
 	return flags;
 }
@@ -3849,13 +3849,13 @@ static void wlan_hdd_get_peer_info_cb(struct sir_peer_info_ext_resp *sta_info,
 	uint8_t sta_num;
 
 	if (!sta_info) {
-		hdd_err("Bad param, sta_info [%pK]",
+		hdd_debug("Bad param, sta_info [%pK]",
 			sta_info);
 		return;
 	}
 
 	if (!sta_info->count) {
-		hdd_err("Fail to get remote peer info");
+		hdd_debug("Fail to get remote peer info");
 		return;
 	}
 
@@ -3868,7 +3868,7 @@ static void wlan_hdd_get_peer_info_cb(struct sir_peer_info_ext_resp *sta_info,
 
 	request = hdd_request_get(context);
 	if (!request) {
-		hdd_err("Obsolete request");
+		hdd_debug("Obsolete request");
 		return;
 	}
 
@@ -3908,13 +3908,13 @@ static int wlan_hdd_get_peer_info(hdd_adapter_t *adapter,
 	};
 
 	if (!adapter) {
-		hdd_err("adapter is NULL");
+		hdd_debug("adapter is NULL");
 		return -EFAULT;
 	}
 
 	request = hdd_request_alloc(&params);
 	if (!request) {
-		hdd_err("Request allocation failure");
+		hdd_debug("Request allocation failure");
 		return -ENOMEM;
 	}
 
@@ -3930,12 +3930,12 @@ static int wlan_hdd_get_peer_info(hdd_adapter_t *adapter,
 				       cookie,
 				       wlan_hdd_get_peer_info_cb);
 	if (status != QDF_STATUS_SUCCESS) {
-		hdd_err("Unable to retrieve statistics for peer info");
+		hdd_debug("Unable to retrieve statistics for peer info");
 		ret = -EFAULT;
 	} else {
 		ret = hdd_request_wait_for_response(request);
 		if (ret) {
-			hdd_err("SME timed out while retrieving peer info");
+			hdd_debug("SME timed out while retrieving peer info");
 			ret = -EFAULT;
 		} else {
 			/* only support one peer by now */
@@ -4018,14 +4018,14 @@ int wlan_hdd_get_station_remote(struct wiphy *wiphy,
 	}
 
 	if (!stainfo) {
-		hdd_err("peer %pM not found", mac);
+		hdd_debug("peer %pM not found", mac);
 		return -EINVAL;
 	}
 
 	qdf_mem_copy(macaddr.bytes, mac, QDF_MAC_ADDR_SIZE);
 	status = wlan_hdd_get_peer_info(adapter, macaddr);
 	if (status) {
-		hdd_err("fail to get peer info from fw");
+		hdd_debug("fail to get peer info from fw");
 		return -EPERM;
 	}
 
@@ -4095,7 +4095,7 @@ static int __wlan_hdd_cfg80211_get_station(struct wiphy *wiphy,
 		return status;
 
 	if (wlan_hdd_validate_session_id(pAdapter->sessionId)) {
-		hdd_err("invalid session id: %d", pAdapter->sessionId);
+		hdd_debug("invalid session id: %d", pAdapter->sessionId);
 		return -EINVAL;
 	}
 
@@ -4217,7 +4217,7 @@ static int __wlan_hdd_cfg80211_get_station(struct wiphy *wiphy,
 			}
 		} else {
 			/* unknown, treat as eHDD_LINK_SPEED_REPORT_MAX */
-			hdd_err("Invalid value for reportMaxLinkSpeed: %u",
+			hdd_debug("Invalid value for reportMaxLinkSpeed: %u",
 			       pCfg->reportMaxLinkSpeed);
 			rssidx = 0;
 		}
@@ -4230,7 +4230,7 @@ static int __wlan_hdd_cfg80211_get_station(struct wiphy *wiphy,
 				    WNI_CFG_OPERATIONAL_RATE_SET,
 				    OperationalRates,
 				    &ORLeng)) {
-			hdd_err("cfg get returned failure");
+			hdd_debug("cfg get returned failure");
 			/*To keep GUI happy */
 			return 0;
 		}
@@ -4257,7 +4257,7 @@ static int __wlan_hdd_cfg80211_get_station(struct wiphy *wiphy,
 		    sme_cfg_get_str(WLAN_HDD_GET_HAL_CTX(pAdapter),
 				    WNI_CFG_EXTENDED_OPERATIONAL_RATE_SET,
 				    ExtendedRates, &ERLeng)) {
-			hdd_err("cfg get returned failure");
+			hdd_debug("cfg get returned failure");
 			/*To keep GUI happy */
 			return 0;
 		}
@@ -4286,7 +4286,7 @@ static int __wlan_hdd_cfg80211_get_station(struct wiphy *wiphy,
 			    sme_cfg_get_str(WLAN_HDD_GET_HAL_CTX(pAdapter),
 					    WNI_CFG_CURRENT_MCS_SET, MCSRates,
 					    &MCSLeng)) {
-				hdd_err("cfg get returned failure");
+				hdd_debug("cfg get returned failure");
 				/*To keep GUI happy */
 				return 0;
 			}
@@ -4761,13 +4761,13 @@ static int __wlan_hdd_cfg80211_dump_survey(struct wiphy *wiphy,
 	}
 
 	if (NULL == pHddCtx->chan_info) {
-		hdd_err("chan_info is NULL");
+		hdd_debug("chan_info is NULL");
 		return -EINVAL;
 
 	}
 
 	if (QDF_GLOBAL_FTM_MODE == hdd_get_conparam()) {
-		hdd_err("Command not allowed in FTM mode");
+		hdd_debug("Command not allowed in FTM mode");
 		return -EINVAL;
 	}
 
@@ -4945,23 +4945,23 @@ static bool hdd_is_rcpi_applicable(hdd_adapter_t *adapter,
 
 		if (qdf_mem_cmp(mac_addr, &hdd_sta_ctx->conn_info.bssId,
 		    sizeof(*mac_addr))) {
-			hdd_err("mac addr is different from bssid connected");
+			hdd_debug("mac addr is different from bssid connected");
 			return false;
 		}
 	} else if (adapter->device_mode == QDF_SAP_MODE ||
 		   adapter->device_mode == QDF_P2P_GO_MODE) {
 		if (!test_bit(SOFTAP_BSS_STARTED, &adapter->event_flags)) {
-			hdd_err("Invalid rcpi request, softap not started");
+			hdd_debug("Invalid rcpi request, softap not started");
 			return false;
 		}
 
 		/* check if peer mac addr is associated to softap */
 		if (!hdd_is_peer_associated(adapter, mac_addr)) {
-			hdd_err("invalid peer mac-addr: not associated");
+			hdd_debug("invalid peer mac-addr: not associated");
 			return false;
 		}
 	} else {
-		hdd_err("Invalid rcpi request");
+		hdd_debug("Invalid rcpi request");
 		return false;
 	}
 
@@ -4986,7 +4986,7 @@ static void wlan_hdd_get_rcpi_cb(void *context, struct qdf_mac_addr mac_addr,
 
 	request = hdd_request_get(context);
 	if (!request) {
-		hdd_err("Obsolete RCPI request");
+		hdd_debug("Obsolete RCPI request");
 		return;
 	}
 
@@ -4995,7 +4995,7 @@ static void wlan_hdd_get_rcpi_cb(void *context, struct qdf_mac_addr mac_addr,
 
 	if (!QDF_IS_STATUS_SUCCESS(status)) {
 		priv->rcpi = 0;
-		hdd_err("Error in computing RCPI");
+		hdd_debug("Error in computing RCPI");
 	} else {
 		priv->rcpi = rcpi;
 	}
@@ -5038,12 +5038,12 @@ static int __wlan_hdd_get_rcpi(hdd_adapter_t *adapter,
 	*rcpi_value = 0;
 
 	if (hdd_get_conparam() == QDF_GLOBAL_FTM_MODE) {
-		hdd_err("Command not allowed in FTM mode");
+		hdd_debug("Command not allowed in FTM mode");
 		return -EINVAL;
 	}
 
 	if (!adapter) {
-		hdd_err("adapter context is NULL");
+		hdd_debug("adapter context is NULL");
 		return -EINVAL;
 	}
 
@@ -5058,7 +5058,7 @@ static int __wlan_hdd_get_rcpi(hdd_adapter_t *adapter,
 	}
 
 	if (!mac) {
-		hdd_err("RCPI peer mac-addr is NULL");
+		hdd_debug("RCPI peer mac-addr is NULL");
 		return -EINVAL;
 	}
 
@@ -5071,13 +5071,13 @@ static int __wlan_hdd_get_rcpi(hdd_adapter_t *adapter,
 
 	rcpi_req = qdf_mem_malloc(sizeof(*rcpi_req));
 	if (!rcpi_req) {
-		hdd_err("unable to allocate memory for RCPI req");
+		hdd_debug("unable to allocate memory for RCPI req");
 		return -EINVAL;
 	}
 
 	request = hdd_request_alloc(&params);
 	if (!request) {
-		hdd_err("Request allocation failure");
+		hdd_debug("Request allocation failure");
 		qdf_mem_free(rcpi_req);
 		return -ENOMEM;
 	}
@@ -5091,7 +5091,7 @@ static int __wlan_hdd_get_rcpi(hdd_adapter_t *adapter,
 
 	qdf_status = sme_get_rcpi(hdd_ctx->hHal, rcpi_req);
 	if (!QDF_IS_STATUS_SUCCESS(qdf_status)) {
-		hdd_err("Unable to retrieve RCPI");
+		hdd_debug("Unable to retrieve RCPI");
 		status = qdf_status_to_os_return(qdf_status);
 		goto out;
 	}
@@ -5099,7 +5099,7 @@ static int __wlan_hdd_get_rcpi(hdd_adapter_t *adapter,
 	/* request was sent -- wait for the response */
 	ret = hdd_request_wait_for_response(request);
 	if (ret) {
-		hdd_err("SME timed out while retrieving RCPI");
+		hdd_debug("SME timed out while retrieving RCPI");
 		status = -EINVAL;
 		goto out;
 	}
@@ -5110,7 +5110,7 @@ static int __wlan_hdd_get_rcpi(hdd_adapter_t *adapter,
 	adapter->rcpi.rcpi = priv->rcpi;
 
 	if (qdf_mem_cmp(&mac_addr, &priv->mac_addr, sizeof(mac_addr))) {
-		hdd_err("mis match of mac addr from call-back");
+		hdd_debug("mis match of mac addr from call-back");
 		status = -EINVAL;
 		goto out;
 	}

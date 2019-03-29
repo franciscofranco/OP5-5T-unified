@@ -30,6 +30,8 @@
 #include <linux/delay.h>
 #include <trace/events/power.h>
 
+#include <linux/clk/msm-clk-provider.h>
+
 static DEFINE_MUTEX(l2bw_lock);
 
 static struct clk *cpu_clk[NR_CPUS];

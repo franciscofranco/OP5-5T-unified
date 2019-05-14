@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2018 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2011-2019 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -367,6 +367,28 @@ typedef  enum  {
     WMI_SERVICE_PEER_UNMAP_RESPONSE_SUPPORT = 182, /* support peer ids unmap response from host */
     WMI_SERVICE_TX_PER_PEER_AMPDU_SIZE = 183, /* indicate FW support per peer TX AMPDU size */
     WMI_SERVICE_BSS_COLOR_SWITCH_COUNT = 184, /* Firmware supports bss-color switch count handling */
+    WMI_SERVICE_HTT_PEER_STATS_SUPPORT = 185, /* Supports the feature where FW sends peer stats autonomously to Host via the HTT_T2H PEER_STATS_IND message */
+    WMI_SERVICE_UL_RU26_ALLOWED = 186, /* indicates support for RU26 in UL OFDMA */
+    WMI_SERVICE_GET_MWS_COEX_STATE = 187, /* FW provides MWS Coex info */
+    WMI_SERVICE_GET_MWS_DPWB_STATE = 188, /* FW provides LTE-Coex Dynamic Power Back-off info */
+    WMI_SERVICE_GET_MWS_TDM_STATE = 189, /* FW provides LTE-Coex TDM info */
+    WMI_SERVICE_GET_MWS_IDRX_STATE = 190, /* FW provides LTE-Coex IDRx info */
+    WMI_SERVICE_GET_MWS_ANTENNA_SHARING_STATE = 191, /* FW provides LTE-Coex Antenna sharing info */
+    WMI_SERVICE_ENHANCED_TPC_CONFIG_EVENT = 192, /* FW provides enhanced tx power control configuration dump */
+    WMI_SERVICE_WLM_STATS_REQUEST = 193, /* FW supports WLAN latency manager stats request */
+    WMI_SERVICE_EXT_PEER_TID_CONFIGS_SUPPORT = 194, /* Extended Peer Tid configuration support for QoS related settings */
+    WMI_SERVICE_WPA3_FT_SAE_SUPPORT = 195, /* FW roaming support for WPA3_FT_SAE */
+    WMI_SERVICE_WPA3_FT_SUITE_B_SUPPORT = 196, /* FW roaming support for WPA3_FT_SUITE_B */
+    WMI_SERVICE_VOW_ENABLE=197, /* FW supports a set of features to optimize VoW performance */
+    WMI_SERVICE_CFR_CAPTURE_IND_EVT_TYPE_1 = 198, /* support WMI_PEER_CFR_CAPTURE_EVENT msg */
+    WMI_SERVICE_BROADCAST_TWT = 199,  /* support of Broadcast TWT (Target Wake Time) for STA/AP */
+    WMI_SERVICE_RAP_DETECTION_SUPPORT = 200, /* indicate FW supports rogue AP detection */
+    WMI_SERVICE_PS_TDCC = 201, /* FW support tx_duty_cycle_control powersave */
+    WMI_SERVICE_THREE_WAY_COEX_CONFIG_LEGACY   = 202, /* BTCOEX Three-way CoEx Config Legacy Feature support */
+    WMI_SERVICE_THREE_WAY_COEX_CONFIG_OVERRIDE = 203, /* BTCOEX Three-way CoEx Config Override Feature support */
+    WMI_SERVICE_TX_PWR_PER_PEER = 204, /* target supports per-peer tx pwr spec via WMI_PEER_USE_FIXED_PWR */
+    WMI_SERVICE_STA_PLUS_STA_SUPPORT = 205, /* indicates target supports STA + STA concurrency */
+    WMI_SERVICE_WPA3_FT_FILS = 206,
 
 
     /******* ADD NEW SERVICES HERE *******/

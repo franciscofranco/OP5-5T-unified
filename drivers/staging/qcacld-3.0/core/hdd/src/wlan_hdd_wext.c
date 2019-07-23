@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2018 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2011-2019 The Linux Foundation. All rights reserved.
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -3885,6 +3885,9 @@ void hdd_clear_roam_profile_ie(hdd_adapter_t *pAdapter)
 	pWextState->authKeyMgmt = 0;
 
 	qdf_mem_zero(pWextState->roamProfile.Keys.KeyLength, CSR_MAX_NUM_KEY);
+
+	qdf_mem_zero(pWextState->roamProfile.Keys.KeyMaterial,
+		     sizeof(pWextState->roamProfile.Keys.KeyMaterial));
 
 #ifdef FEATURE_WLAN_WAPI
 	pAdapter->wapi_info.wapiAuthMode = WAPI_AUTH_MODE_OPEN;
@@ -8974,7 +8977,8 @@ static int __iw_setnone_getint(struct net_device *dev,
 		if (QDF_STATUS_SUCCESS !=
 		    sme_cfg_get_int(hHal, WNI_CFG_CURRENT_TX_POWER_LEVEL,
 				    &txpow2g)) {
-			return -EIO;
+			ret = -EIO;
+			break;
 		}
 		hdd_debug("2G tx_power %d", txpow2g);
 		break;
@@ -8992,7 +8996,8 @@ static int __iw_setnone_getint(struct net_device *dev,
 		if (QDF_STATUS_SUCCESS !=
 		    sme_cfg_get_int(hHal, WNI_CFG_CURRENT_TX_POWER_LEVEL,
 				    &txpow5g)) {
-			return -EIO;
+			ret = -EIO;
+			break;
 		}
 		hdd_debug("5G tx_power %d", txpow5g);
 		break;
